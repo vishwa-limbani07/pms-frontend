@@ -132,7 +132,7 @@ export const deleteCommentApi = async (id) => {
 }
 
 // Attachments — keep mock for now (no file upload backend yet)
-export const getAttachmentsApi = async (taskId) => {
+export const getAttachmentsApi = async () => {
   return []
 }
 
