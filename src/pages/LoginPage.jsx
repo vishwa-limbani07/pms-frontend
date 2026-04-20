@@ -22,7 +22,7 @@ export default function LoginPage() {
             <span className="text-white text-lg sm:text-xl font-bold">P</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1">Sign in to your PMS account</p>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1">Sign in to your ProjectNest account</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm">

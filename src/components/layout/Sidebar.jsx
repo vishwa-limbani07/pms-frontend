@@ -44,7 +44,7 @@ export default function Sidebar() {
           <span className="text-white text-sm font-bold">P</span>
         </div>
         {(sidebarOpen || mobileSidebarOpen) && (
-          <span className="font-semibold text-gray-900 text-sm whitespace-nowrap">PMS App</span>
+          <span className="font-semibold text-gray-900 text-sm whitespace-nowrap">ProjectNest</span>
         )}
 
         {/* Mobile close button */}

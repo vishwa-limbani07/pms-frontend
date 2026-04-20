@@ -59,14 +59,14 @@ export const getMembersApi = async (projectId) => {
   }
 }
 
-export const inviteMemberApi = async ({ projectId, name, email, role }) => {
+export const inviteMemberApi = async ({ name, email, role }) => {
   return { id: Date.now().toString(), name, email, role, avatar: null, joinedAt: new Date().toISOString() }
 }
 
-export const updateMemberRoleApi = async ({ projectId, memberId, role }) => {
+export const updateMemberRoleApi = async ({ memberId, role }) => {
   return { id: memberId, role }
 }
 
-export const removeMemberApi = async ({ projectId, memberId }) => {
+export const removeMemberApi = async ({ memberId }) => {
   return { memberId }
 }
