@@ -2,7 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import { FolderKanban, CheckSquare, Clock, TrendingUp, ArrowRight, Circle } from 'lucide-react'
 import { useProjects } from '../hooks/useProjects'
 import { useAuthStore } from '../store/authStore'
-import { mockTasks } from '../api/mockData'
+// import { mockTasks } from '../api/mockData'
+import { useTasks } from '../hooks/useTasks'
+
 import { formatDate } from '../utils/formatDate'
 
 const priorityConfig = {
@@ -23,11 +25,16 @@ export default function DashboardPage() {
   const { user } = useAuthStore()
   const { data: projects = [], isLoading } = useProjects()
 
-  const myTasks = mockTasks.filter(t => t.assignee?.id === user?.id)
-  const totalTasks = mockTasks.length
-  const inProgress = mockTasks.filter(t => t.status === 'IN_PROGRESS').length
-  const done = mockTasks.filter(t => t.status === 'DONE').length
-
+  // const myTasks = mockTasks.filter(t => t.assignee?.id === user?.id)
+  // const totalTasks = mockTasks.length
+  // const inProgress = mockTasks.filter(t => t.status === 'IN_PROGRESS').length
+  // const done = mockTasks.filter(t => t.status === 'DONE').length
+const firstProject = projects[0]
+const { data: allTasks = [] } = useTasks(firstProject?.id)
+const myTasks = allTasks.filter(t => t.assignee?.id === user?.id || t.assigneeId === user?.id)
+const totalTasks = allTasks.length
+const inProgress = allTasks.filter(t => t.status === 'IN_PROGRESS').length
+const done = allTasks.filter(t => t.status === 'DONE').length
   const stats = [
     { label: 'Total projects', value: projects.length, icon: FolderKanban, color: 'bg-blue-50 text-blue-600' },
     { label: 'Total tasks',    value: totalTasks,       icon: CheckSquare,  color: 'bg-purple-50 text-purple-600' },
