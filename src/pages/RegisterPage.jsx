@@ -28,7 +28,7 @@ export default function RegisterPage() {
             <span className="text-white text-xl font-bold">P</span>
           </div>
           <h1 className="text-2xl font-semibold text-gray-900">Create your account</h1>
-          <p className="text-gray-500 text-sm mt-1">Start managing projects today</p>
+          <p className="text-gray-500 text-sm mt-1">Start managing projects with ProjectNest</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
