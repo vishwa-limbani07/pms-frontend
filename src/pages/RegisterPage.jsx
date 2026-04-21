@@ -98,7 +98,7 @@ export default function RegisterPage() {
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {[
-              { id: 'name', label: 'Full name', type: 'text', placeholder: 'Vishwa Limbani' },
+              { id: 'name', label: 'Full name', type: 'text', placeholder: 'John Doe'},
               { id: 'email', label: 'Email address', type: 'email', placeholder: 'you@example.com' },
               { id: 'password', label: 'Password', type: 'password', placeholder: '••••••••' },
               { id: 'confirmPassword', label: 'Confirm password', type: 'password', placeholder: '••••••••' },
