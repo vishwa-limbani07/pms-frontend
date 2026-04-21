@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import {
   Plus, Users, Trash2, Search, ChevronRight, UserPlus, Crown,
-  Shield, User, Mail, X, MoreHorizontal, ArrowRight
+  User, Mail, X, MoreHorizontal, ArrowRight, Pencil
 } from 'lucide-react'
 import {
-  useSquads, useCreateSquad, useDeleteSquad,
+  useSquads, useCreateSquad, useDeleteSquad, useUpdateSquad,
   useAddSquadMember, useRemoveSquadMember, useUpdateSquadMemberRole
 } from '../hooks/useSquads'
 
@@ -14,8 +14,8 @@ const SQUAD_COLORS = [
 ]
 
 const roleConfig = {
-  Lead:   { icon: Crown,  bg: 'bg-amber-50 text-amber-700 border border-amber-200' },
-  Member: { icon: User,   bg: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  Lead:   { icon: Crown, bg: 'bg-amber-50 text-amber-700 border border-amber-200' },
+  Member: { icon: User,  bg: 'bg-blue-50 text-blue-700 border border-blue-200' },
 }
 
 // ── Create Squad Modal ───────────────────────────────────────
@@ -97,6 +97,82 @@ function CreateSquadModal({ onClose }) {
   )
 }
 
+// ── Edit Squad Modal ─────────────────────────────────────────
+function EditSquadModal({ squad, onClose }) {
+  const { mutate: updateSquad, isPending } = useUpdateSquad()
+  const [name, setName] = useState(squad.name)
+  const [description, setDescription] = useState(squad.description || '')
+  const [color, setColor] = useState(squad.color || SQUAD_COLORS[0])
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!name.trim()) return
+    updateSquad(
+      { id: squad.id, name: name.trim(), description: description.trim(), color },
+      { onSuccess: onClose }
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Edit squad</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Update squad details</p>
+          </div>
+          <button onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100
+              text-gray-400 cursor-pointer"><X size={16} /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Squad name</label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)}
+              autoFocus className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)}
+              rows={2} className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 resize-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Squad color</label>
+            <div className="flex gap-2 flex-wrap">
+              {SQUAD_COLORS.map(c => (
+                <button key={c} type="button" onClick={() => setColor(c)}
+                  className="w-7 h-7 rounded-full hover:scale-110 transition-transform cursor-pointer"
+                  style={{ backgroundColor: c,
+                    outline: color === c ? `3px solid ${c}` : 'none', outlineOffset: '2px' }} />
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-semibold"
+              style={{ backgroundColor: color }}>{name ? name[0].toUpperCase() : 'S'}</div>
+            <div>
+              <p className="text-sm font-medium text-gray-800">{name || 'Squad name'}</p>
+              <p className="text-xs text-gray-400">{description || 'No description'}</p>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose}
+              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-sm
+                text-gray-700 hover:bg-gray-50 cursor-pointer">Cancel</button>
+            <button type="submit" disabled={isPending || !name.trim()}
+              className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700
+                disabled:bg-blue-300 text-white text-sm font-medium cursor-pointer">
+              {isPending ? 'Saving...' : 'Save changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 // ── Add Member Inline ────────────────────────────────────────
 function AddMemberForm({ squadId }) {
   const { mutate: addMember, isPending } = useAddSquadMember()
@@ -155,7 +231,7 @@ function AddMemberForm({ squadId }) {
 }
 
 // ── Squad Detail Panel ───────────────────────────────────────
-function SquadDetail({ squad }) {
+function SquadDetail({ squad, setEditSquad }) {
   const { mutate: removeMember } = useRemoveSquadMember()
   const { mutate: updateRole } = useUpdateSquadMemberRole()
   const [menuOpen, setMenuOpen] = useState(null)
@@ -203,6 +279,12 @@ function SquadDetail({ squad }) {
               </p>
             </div>
           </div>
+          <button onClick={() => setEditSquad(squad)}
+            className="flex items-center gap-1.5 px-3 py-2 border border-gray-200
+              text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-50
+              transition cursor-pointer flex-shrink-0">
+            <Pencil size={12} /> Edit
+          </button>
         </div>
       </div>
 
@@ -286,7 +368,6 @@ function SquadDetail({ squad }) {
                         <MoreHorizontal size={14} />
                       </button>
 
-                      {/* Dropdown menu */}
                       {menuOpen === member.id && (
                         <>
                           <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(null)} />
@@ -335,6 +416,7 @@ function SquadDetail({ squad }) {
 // ── Main Page ────────────────────────────────────────────────
 export default function SquadsPage() {
   const [showModal, setShowModal] = useState(false)
+  const [editSquad, setEditSquad] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -450,7 +532,6 @@ export default function SquadsPage() {
                       </span>
                     </div>
 
-                    {/* Member avatar stack */}
                     {squad.members.length > 0 && (
                       <div className="flex items-center mt-2 -space-x-1.5">
                         {squad.members.slice(0, 5).map(m => {
@@ -504,7 +585,7 @@ export default function SquadsPage() {
         {/* Right panel — squad detail */}
         <div className="flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden min-w-0">
           {selectedSquad ? (
-            <SquadDetail squad={selectedSquad} />
+            <SquadDetail squad={selectedSquad} setEditSquad={setEditSquad} />
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center px-8">
               <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
@@ -519,7 +600,9 @@ export default function SquadsPage() {
         </div>
       </div>
 
+      {/* Modals */}
       {showModal && <CreateSquadModal onClose={() => setShowModal(false)} />}
+      {editSquad && <EditSquadModal squad={editSquad} onClose={() => setEditSquad(null)} />}
     </div>
   )
 }
