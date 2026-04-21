@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage'
 import AppLayout from './components/layout/AppLayout'
 import NotFoundPage from './pages/NotFoundPage'
 import SquadsPage from './pages/SquadsPage'
+import TimeLogsPage from './pages/TimeLogsPage'
 
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="projects/:id" element={<ProjectDetailPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="squads" element={<SquadsPage />} />
+<Route path="/timelogs" element={<TimeLogsPage />} />
 
         </Route>
         <Route path="*" element={<NotFoundPage />} />
