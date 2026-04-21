@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, FolderKanban, UsersRound, Settings,
-  LogOut, ChevronLeft, ChevronRight, X
+  LogOut, ChevronLeft, ChevronRight, X,Clock
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useUiStore } from '../../store/uiStore'
@@ -10,6 +10,7 @@ import toast from 'react-hot-toast'
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/projects',  icon: FolderKanban,    label: 'Projects'  },
+  { to: '/timelogs',  icon: Clock,            label: 'Time logs' },
   { to: '/squads',    icon: UsersRound,       label: 'Squads'    },
   { to: '/profile',   icon: Settings,         label: 'Settings'  },
 ]
