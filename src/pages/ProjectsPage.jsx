@@ -5,11 +5,12 @@ import {
   Search, LayoutGrid, Calendar, Target, TrendingUp, ArrowUpRight,
   Clock, ChevronRight, Layers, BarChart3, ExternalLink, Filter
 } from 'lucide-react'
-import { useProjects, useCreateProject, useDeleteProject } from '../hooks/useProjects'
+import { useProjects, useCreateProject, useDeleteProject,useUpdateProject } from '../hooks/useProjects'
 import { useSquads } from '../hooks/useSquads'
 import { useTasks } from '../hooks/useTasks'
 import { formatDate } from '../utils/formatDate'
-
+import { X, Pencil } from 'lucide-react'  
+// add X and Pencil to existing imports
 const PROJECT_COLORS = [
   '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B',
   '#EF4444', '#06B6D4', '#EC4899', '#84CC16',
@@ -115,9 +116,86 @@ function CreateProjectModal({ onClose, squads }) {
     </div>
   )
 }
+function EditProjectModal({ project, onClose, squads }) {
+  const { mutate: updateProject, isPending } = useUpdateProject()
+  const [name, setName] = useState(project.name)
+  const [description, setDescription] = useState(project.description || '')
+  const [color, setColor] = useState(project.color || PROJECT_COLORS[0])
+  const [squadId, setSquadId] = useState(project.squadId || '')
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!name.trim()) return
+    updateProject(
+      { id: project.id, name: name.trim(), description: description.trim(), color, squadId: squadId || null },
+      { onSuccess: onClose }
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Edit project</h2>
+            <p className="text-sm text-gray-500 mt-0.5">Update project details</p>
+          </div>
+          <button onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100
+              text-gray-400 cursor-pointer"><X size={16} /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Project name</label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)}
+              autoFocus className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)}
+              rows={3} className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 resize-none" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Project color</label>
+            <div className="flex gap-2 flex-wrap">
+              {PROJECT_COLORS.map(c => (
+                <button key={c} type="button" onClick={() => setColor(c)}
+                  className="w-7 h-7 rounded-full hover:scale-110 transition-transform cursor-pointer"
+                  style={{ backgroundColor: c,
+                    outline: color === c ? `3px solid ${c}` : 'none', outlineOffset: '2px' }} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Squad</label>
+            <select value={squadId} onChange={e => setSquadId(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer">
+              <option value="">No squad assigned</option>
+              {squads.map(s => (
+                <option key={s.id} value={s.id}>{s.name} ({s.members.length} members)</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose}
+              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-sm
+                text-gray-700 hover:bg-gray-50 cursor-pointer">Cancel</button>
+            <button type="submit" disabled={isPending || !name.trim()}
+              className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700
+                disabled:bg-blue-300 text-white text-sm font-medium cursor-pointer">
+              {isPending ? 'Saving...' : 'Save changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
 // ── Preview Panel ────────────────────────────────────────────
-function ProjectPreview({ project, squads }) {
+function ProjectPreview({ project, squads, setEditProject }) {
   const navigate = useNavigate()
   const { data: tasks = [], isLoading } = useTasks(project.id)
   const squad = squads.find(s => s.id === project.squadId)
@@ -150,11 +228,19 @@ function ProjectPreview({ project, squads }) {
               </p>
             </div>
           </div>
-          <button onClick={() => navigate(`/projects/${project.id}`)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700
-              text-white text-xs font-medium rounded-lg transition cursor-pointer">
-            Open <ExternalLink size={12} />
-          </button>
+       <div className="flex items-center gap-2">
+  <button onClick={() => setEditProject(project)}
+    className="flex items-center gap-1.5 px-3 py-2 border border-gray-200
+      text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-50
+      transition cursor-pointer">
+    <Pencil size={12} /> Edit
+  </button>
+  <button onClick={() => navigate(`/projects/${project.id}`)}
+    className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700
+      text-white text-xs font-medium rounded-lg transition cursor-pointer">
+    Open <ExternalLink size={12} />
+  </button>
+</div>
         </div>
 
         {project.description && (
@@ -312,6 +398,7 @@ function ProjectPreview({ project, squads }) {
 // ── Main Page ────────────────────────────────────────────────
 export default function ProjectsPage() {
   const [showModal, setShowModal] = useState(false)
+  const [editProject, setEditProject] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
@@ -483,8 +570,7 @@ export default function ProjectsPage() {
         {/* Right panel — project preview */}
         <div className="flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden min-w-0">
           {selectedProject ? (
-            <ProjectPreview project={selectedProject} squads={squads} />
-          ) : (
+<ProjectPreview project={selectedProject} squads={squads} setEditProject={setEditProject} />          ) : (
             <div className="h-full flex flex-col items-center justify-center text-center px-8">
               <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
                 <FolderKanban size={28} className="text-gray-300" />
@@ -499,6 +585,7 @@ export default function ProjectsPage() {
       </div>
 
       {showModal && <CreateProjectModal onClose={() => setShowModal(false)} squads={squads} />}
+        {editProject && <EditProjectModal project={editProject} onClose={() => setEditProject(null)} squads={squads} />}
     </div>
   )
 }

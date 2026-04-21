@@ -59,13 +59,9 @@ export const useUpdateProject = () => {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: updateProjectApi,
-    onSuccess: (updated) => {
-      qc.setQueryData(['projects'], (old = []) =>
-        old.map(p => p.id === updated.id ? updated : p)
-      )
-      toast.success('Project updated!')
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['projects'] })
     },
-    onError: () => toast.error('Failed to update project'),
   })
 }
 
