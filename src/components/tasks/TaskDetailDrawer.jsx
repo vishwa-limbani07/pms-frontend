@@ -14,7 +14,8 @@ import {
   useLinkedItems, useAddLinkedItem, useDeleteLinkedItem,
 } from '../../hooks/useTaskDetail'
 import { mockTasks } from '../../api/mockData'
-
+import { useSquads } from '../../hooks/useSquads'
+import { useProjects } from '../../hooks/useProjects'
 const STATUS_OPTIONS = [
   { value: 'TODO',        label: 'To Do',       class: 'bg-gray-100 text-gray-600' },
   { value: 'IN_PROGRESS', label: 'In Progress',  class: 'bg-blue-50 text-blue-600' },
@@ -804,21 +805,11 @@ export default function TaskDetailDrawer({ task, onClose }) {
             </FieldRow>
 
             <FieldRow label="Assignee">
-              <div className="px-3 py-2">
-                {localTask.assignee ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-blue-600 text-xs font-semibold">
-                        {localTask.assignee.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="text-sm text-gray-700">{localTask.assignee.name}</span>
-                  </div>
-                ) : (
-                  <span className="text-sm text-gray-300">Unassigned</span>
-                )}
-              </div>
-            </FieldRow>
+  <AssigneeSelector
+    task={localTask}
+    onChange={(assigneeId) => handleUpdate('assigneeId', assigneeId)}
+  />
+</FieldRow>
 
             <FieldRow label="Description">
               <EditableField
@@ -889,5 +880,93 @@ export default function TaskDetailDrawer({ task, onClose }) {
         </div>
       </div>
     </>
+  )
+}
+// ── Assignee Selector ─────────────────────────────────────────
+function AssigneeSelector({ task, onChange }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  const { data: squads = [] } = useSquads()
+  const { data: projects = [] } = useProjects()
+
+  const project = projects.find(p => p.id === task.projectId)
+  const squad = squads.find(s => s.id === project?.squadId)
+  const members = squad?.members || []
+
+  useEffect(() => {
+    const handler = (e) => { if (!ref.current?.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const getInitials = (name) => name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'
+  const getColor = (name) => {
+    const colors = ['bg-blue-100 text-blue-600', 'bg-purple-100 text-purple-600',
+      'bg-green-100 text-green-600', 'bg-amber-100 text-amber-600', 'bg-pink-100 text-pink-600']
+    return colors[(name?.charCodeAt(0) || 0) % colors.length]
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent
+          hover:border-gray-200 hover:bg-gray-50 cursor-pointer transition w-full text-left group">
+        {task.assignee ? (
+          <>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center
+              text-xs font-semibold ${getColor(task.assignee.name)}`}>
+              {getInitials(task.assignee.name)}
+            </div>
+            <span className="text-sm text-gray-700 flex-1">{task.assignee.name}</span>
+          </>
+        ) : (
+          <span className="text-sm text-gray-300 flex-1">Unassigned</span>
+        )}
+        <ChevronDown size={12} className="text-gray-400 opacity-0 group-hover:opacity-100" />
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200
+          rounded-xl shadow-lg z-50 w-full min-w-[220px] max-h-[250px] overflow-auto">
+          <button onClick={() => { onChange(null); setOpen(false) }}
+            className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs hover:bg-gray-50
+              cursor-pointer text-left transition
+              ${!task.assignee ? 'bg-blue-50 font-medium' : ''}`}>
+            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+              <X size={10} className="text-gray-400" />
+            </div>
+            <span className="text-gray-600">Unassigned</span>
+            {!task.assignee && <Check size={11} className="ml-auto text-blue-600" />}
+          </button>
+
+          {members.length === 0 && (
+            <p className="px-3 py-2 text-xs text-gray-400">
+              {project?.squadId ? 'No members in squad' : 'No squad assigned to project'}
+            </p>
+          )}
+
+          {members.map(m => {
+            const isSelected = task.assignee?.id === m.id || task.assigneeId === m.id
+            return (
+              <button key={m.id}
+                onClick={() => { onChange(m.id); setOpen(false) }}
+                className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs hover:bg-gray-50
+                  cursor-pointer text-left transition
+                  ${isSelected ? 'bg-blue-50 font-medium' : ''}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center
+                  text-xs font-semibold ${getColor(m.name)}`}>
+                  {getInitials(m.name)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-gray-800 block truncate">{m.name}</span>
+                  <span className="text-gray-400 text-xs">{m.role}</span>
+                </div>
+                {isSelected && <Check size={11} className="ml-auto text-blue-600 flex-shrink-0" />}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }

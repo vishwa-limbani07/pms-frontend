@@ -2,28 +2,31 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useCreateTask } from '../../hooks/useTasks'
 import { useSquads } from '../../hooks/useSquads'
-import { mockProjects } from '../../api/mockData'
+import { useProjects } from '../../hooks/useProjects'
+
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH']
 
 export default function CreateTaskModal({ projectId, onClose }) {
   const { mutate: createTask, isPending } = useCreateTask(projectId)
   const [form, setForm] = useState({
-  title: '', description: '', priority: 'MEDIUM', dueDate: '', assigneeId: ''
-})
+    title: '', description: '', priority: 'MEDIUM', dueDate: '', assigneeId: ''
+  })
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
-const { data: squads = [] } = useSquads()
-const project = mockProjects.find(p => p.id === projectId)
-const squad = squads.find(s => s.id === project?.squadId)
-const assignableMembers = squad?.members || []
+
+  const { data: squads = [] } = useSquads()
+  const { data: projects = [] } = useProjects()
+  const project = projects.find(p => p.id === projectId)
+  const squad = squads.find(s => s.id === project?.squadId)
+  const assignableMembers = squad?.members || []
+
   const handleSubmit = (e) => {
-  e.preventDefault()
-  if (!form.title.trim()) return
-  const assignee = assignableMembers.find(m => m.id === form.assigneeId) || null
-  createTask(
-    { projectId, ...form, assignee },
-    { onSuccess: onClose }
-  )
-}
+    e.preventDefault()
+    if (!form.title.trim()) return
+    createTask(
+      { projectId, ...form, assigneeId: form.assigneeId || null },
+      { onSuccess: onClose }
+    )
+  }
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
@@ -36,48 +39,30 @@ const assignableMembers = squad?.members || []
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-          {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Task title</label>
-            <input
-              type="text"
-              value={form.title}
-              onChange={e => set('title', e.target.value)}
-              placeholder="e.g. Design landing page"
-              autoFocus
+            <input type="text" value={form.title} onChange={e => set('title', e.target.value)}
+              placeholder="e.g. Design landing page" autoFocus
               className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                placeholder:text-gray-400 transition"
-            />
+                focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400" />
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Description <span className="text-gray-400 font-normal">(optional)</span>
             </label>
-            <textarea
-              value={form.description}
-              onChange={e => set('description', e.target.value)}
-              placeholder="Add more details..."
-              rows={3}
+            <textarea value={form.description} onChange={e => set('description', e.target.value)}
+              placeholder="Add more details..." rows={3}
               className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                placeholder:text-gray-400 transition resize-none"
-            />
+                focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 resize-none" />
           </div>
 
-          {/* Priority + Due date row */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Priority</label>
-              <select
-                value={form.priority}
-                onChange={e => set('priority', e.target.value)}
+              <select value={form.priority} onChange={e => set('priority', e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                  bg-white transition cursor-pointer"
-              >
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer">
                 {PRIORITIES.map(p => (
                   <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>
                 ))}
@@ -85,56 +70,41 @@ const assignableMembers = squad?.members || []
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Due date</label>
-              <input
-                type="date"
-                value={form.dueDate}
-                onChange={e => set('dueDate', e.target.value)}
+              <input type="date" value={form.dueDate} onChange={e => set('dueDate', e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                  transition cursor-pointer"
-              />
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer" />
             </div>
           </div>
-{/* Assignee */}
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-    Assign to {squad ? <span className="text-gray-400 font-normal">({squad.name})</span> : ''}
-  </label>
-  {assignableMembers.length > 0 ? (
-    <select
-      value={form.assigneeId || ''}
-      onChange={e => set('assigneeId', e.target.value)}
-      className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
-        focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer"
-    >
-      <option value="">Unassigned</option>
-      {assignableMembers.map(m => (
-        <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
-      ))}
-    </select>
-  ) : (
-    <p className="text-xs text-gray-400 py-2">
-      {project?.squadId
-        ? 'No members in assigned squad'
-        : 'No squad assigned to this project. Assign a squad first.'}
-    </p>
-  )}
-</div>
-          {/* Actions */}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Assign to {squad ? <span className="text-gray-400 font-normal">({squad.name})</span> : ''}
+            </label>
+            {assignableMembers.length > 0 ? (
+              <select value={form.assigneeId} onChange={e => set('assigneeId', e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-sm
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer">
+                <option value="">Unassigned</option>
+                {assignableMembers.map(m => (
+                  <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-xs text-gray-400 py-2">
+                {project?.squadId
+                  ? 'No members in assigned squad'
+                  : 'No squad assigned to this project. Assign a squad first.'}
+              </p>
+            )}
+          </div>
+
           <div className="flex gap-3 pt-1">
-            <button
-              type="button" onClick={onClose}
+            <button type="button" onClick={onClose}
               className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-sm
-                text-gray-700 hover:bg-gray-50 transition cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isPending || !form.title.trim()}
+                text-gray-700 hover:bg-gray-50 cursor-pointer">Cancel</button>
+            <button type="submit" disabled={isPending || !form.title.trim()}
               className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700
-                disabled:bg-blue-300 text-white text-sm font-medium transition cursor-pointer"
-            >
+                disabled:bg-blue-300 text-white text-sm font-medium cursor-pointer">
               {isPending ? 'Creating...' : 'Create task'}
             </button>
           </div>
