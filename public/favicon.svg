@@ -1,10 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#2563EB"/>
-      <stop offset="100%" stop-color="#1D4ED8"/>
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#1E40AF"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
     </linearGradient>
   </defs>
+  <!-- Background -->
   <rect width="32" height="32" rx="8" fill="url(#bg)"/>
-  <text x="16" y="22.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20" fill="white">N</text>
+  <!-- Top shine -->
+  <rect width="32" height="16" rx="8" fill="url(#shine)"/>
+  <!-- Lucide Layers icon (24x24 source), scaled to ~18px and centered -->
+  <g transform="translate(7, 7) scale(0.75)"
+     stroke="white"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+    <!-- Top layer (filled) -->
+    <polygon points="12 2 2 7 12 12 22 7 12 2" fill="white"/>
+    <!-- Middle layer -->
+    <polyline points="2 12 12 17 22 12" fill="none"/>
+    <!-- Bottom layer -->
+    <polyline points="2 17 12 22 22 17" fill="none"/>
+  </g>
 </svg>

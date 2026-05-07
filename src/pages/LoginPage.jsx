@@ -173,7 +173,7 @@ export default function LoginPage() {
               Demo credentials
             </p>
             <p className="text-xs text-blue-600 text-center font-mono">
-              demo@pms.com / password123
+              admin@gmail.com / admin123
             </p>
           </div>
 
