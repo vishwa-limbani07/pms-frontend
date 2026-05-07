@@ -1,11 +1,22 @@
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router-dom'
 import { useLogin } from '../hooks/useAuth'
 import {
-  FolderKanban, Users, BarChart3, Shield, Clock, Zap
+  FolderKanban, Users, BarChart3, Shield, Clock, Zap, Layers
 } from 'lucide-react'
+
+const LOADING_MESSAGES = [
+  'Connecting to your workspace...',
+  'Waking up the server, hang tight...',
+  'Verifying your credentials...',
+  'Loading your projects...',
+  'Getting things ready for you...',
+  'Almost there, just a moment...',
+  'Fetching your dashboard...',
+]
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -27,8 +38,46 @@ export default function LoginPage() {
     resolver: zodResolver(schema)
   })
 
+  const [progress, setProgress] = useState(0)
+  const [msgIndex, setMsgIndex] = useState(0)
+  const [msgVisible, setMsgVisible] = useState(true)
+
+  useEffect(() => {
+    if (!isPending) {
+      setProgress(0)
+      setMsgIndex(0)
+      return
+    }
+
+    // Simulate realistic progress: fast start → slow crawl → hold before 100
+    const progressTimer = setInterval(() => {
+      setProgress(prev => {
+        if (prev < 25) return prev + 4
+        if (prev < 55) return prev + 2
+        if (prev < 75) return prev + 0.8
+        if (prev < 88) return prev + 0.3
+        if (prev < 94) return prev + 0.1
+        return prev
+      })
+    }, 250)
+
+    // Cycle messages with a fade effect
+    const msgTimer = setInterval(() => {
+      setMsgVisible(false)
+      setTimeout(() => {
+        setMsgIndex(prev => (prev + 1) % LOADING_MESSAGES.length)
+        setMsgVisible(true)
+      }, 300)
+    }, 2800)
+
+    return () => {
+      clearInterval(progressTimer)
+      clearInterval(msgTimer)
+    }
+  }, [isPending])
+
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
 
       {/* Left panel — branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-blue-600 relative overflow-hidden flex-col justify-between p-12">
@@ -45,9 +94,9 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="flex items-center gap-3 mb-20">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-              <span className="text-blue-600 text-sm font-bold">PN</span>
+              <span className="text-blue-600 text-sm font-bold">NX</span>
             </div>
-            <span className="text-white text-lg font-semibold">ProjectNest</span>
+            <span className="text-white text-lg font-semibold">Nexus</span>
           </div>
 
           {/* Headline */}
@@ -86,9 +135,9 @@ export default function LoginPage() {
           {/* Mobile logo (hidden on desktop) */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">PN</span>
+              <span className="text-white text-sm font-bold">NX</span>
             </div>
-            <span className="text-gray-900 text-lg font-semibold">ProjectNest</span>
+            <span className="text-gray-900 text-lg font-semibold">Nexus</span>
           </div>
 
           {/* Header */}
@@ -151,7 +200,7 @@ export default function LoginPage() {
             >
               {isPending ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
                   Signing in...
                 </>
               ) : (
@@ -186,6 +235,52 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      {/* ── Loading overlay ── */}
+      {isPending && (
+        <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="flex flex-col items-center w-full max-w-xs px-8 gap-7">
+
+            {/* Pulsing logo */}
+            <div className="relative flex items-center justify-center">
+              <div className="absolute w-20 h-20 bg-blue-500/20 rounded-3xl animate-ping" />
+              <div className="relative w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <Layers className="w-8 h-8 text-white" />
+              </div>
+            </div>
+
+            {/* Heading + cycling message */}
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-bold text-gray-900">Signing you in</h3>
+              <p
+                className="text-sm text-gray-500 min-h-[20px] transition-opacity duration-300"
+                style={{ opacity: msgVisible ? 1 : 0 }}
+              >
+                {LOADING_MESSAGES[msgIndex]}
+              </p>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full space-y-2">
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>Loading workspace</span>
+                <span className="tabular-nums">{Math.round(progress)}%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 transition-all duration-500 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Server note */}
+            <p className="text-xs text-gray-400 text-center leading-relaxed">
+              Our free-tier server may take a few seconds<br />to wake up. Thanks for your patience!
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

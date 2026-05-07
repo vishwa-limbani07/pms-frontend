@@ -483,7 +483,7 @@ export default function ProfilePage() {
 
           {/* Bottom info */}
           <div className="p-3 border-t border-gray-100 bg-gray-50">
-            <p className="text-xs text-gray-400 text-center">ProjectNest v1.0</p>
+            <p className="text-xs text-gray-400 text-center">Nexus v1.0</p>
           </div>
         </div>
 

@@ -94,7 +94,7 @@ const testimonials = [
     role: 'Engineering Manager at Techflow',
     initials: 'SC',
     avatarBg: 'bg-blue-600',
-    text: 'ProjectNest transformed how our engineering team ships features. The kanban boards and squad management are exactly what we needed.',
+    text: 'Nexus transformed how our engineering team ships features. The kanban boards and squad management are exactly what we needed.',
     stars: 5,
   },
   {
@@ -116,7 +116,7 @@ const testimonials = [
 ]
 
 const stats = [
-  { value: '500+', label: 'Teams Using ProjectNest' },
+  { value: '500+', label: 'Teams Using Nexus' },
   { value: '10k+', label: 'Projects Managed' },
   { value: '50k+', label: 'Tasks Completed' },
   { value: '99.9%', label: 'Uptime Guaranteed' },
@@ -133,13 +133,14 @@ export default function LandingPage() {
   const [testimonialsRef, testimonialsVisible] = useScrollAnimation()
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const check = () => setScrolled((window.scrollY || document.documentElement.scrollTop) > 50)
+    check() // initialize immediately so mobile renders correctly on mount
+    window.addEventListener('scroll', check, { passive: true })
+    return () => window.removeEventListener('scroll', check)
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-900">
 
       {/* ── Navbar ── */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -152,7 +153,7 @@ export default function LandingPage() {
                 <Layers className="w-4 h-4 text-white" />
               </div>
               <span className={`text-xl font-bold tracking-tight transition-colors ${scrolled ? 'text-gray-900' : 'text-white'}`}>
-                ProjectNest
+                Nexus
               </span>
             </div>
 
@@ -266,7 +267,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            ProjectNest brings your projects, squads, and timelines together in one beautifully crafted workspace.
+            Nexus brings your projects, squads, and timelines together in one beautifully crafted workspace.
             Stop juggling tools — start delivering results.
           </p>
 
@@ -490,7 +491,7 @@ export default function LandingPage() {
               Loved by engineering teams
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              See what teams are saying about ProjectNest.
+              See what teams are saying about Nexus.
             </p>
           </div>
 
@@ -533,7 +534,7 @@ export default function LandingPage() {
             Ready to transform your workflow?
           </h2>
           <p className="text-gray-400 text-lg mb-10 leading-relaxed">
-            Join hundreds of teams shipping faster with ProjectNest. Free to start, no credit card required.
+            Join hundreds of teams shipping faster with Nexus. Free to start, no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -565,7 +566,7 @@ export default function LandingPage() {
                 <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
                   <Layers className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-white font-bold text-lg">ProjectNest</span>
+                <span className="text-white font-bold text-lg">Nexus</span>
               </div>
               <p className="text-slate-500 text-sm leading-relaxed">
                 Modern project management for high-performing teams.
@@ -593,7 +594,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-slate-600 text-sm">© {new Date().getFullYear()} ProjectNest. All rights reserved.</p>
+            <p className="text-slate-600 text-sm">© {new Date().getFullYear()} Nexus. All rights reserved.</p>
             <p className="text-slate-700 text-sm">Built with React & Tailwind CSS</p>
           </div>
         </div>

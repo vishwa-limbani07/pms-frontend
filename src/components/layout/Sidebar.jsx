@@ -42,10 +42,10 @@ export default function Sidebar() {
       <div className={`flex items-center gap-3 px-4 h-16 border-b border-gray-200
         ${!sidebarOpen && 'justify-center px-0'} lg:flex`}>
         <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-          <span className="text-white text-sm font-bold">P</span>
+          <span className="text-white text-sm font-bold">N</span>
         </div>
         {(sidebarOpen || mobileSidebarOpen) && (
-          <span className="font-semibold text-gray-900 text-sm whitespace-nowrap">ProjectNest</span>
+          <span className="font-semibold text-gray-900 text-sm whitespace-nowrap">Nexus</span>
         )}
 
         {/* Mobile close button */}

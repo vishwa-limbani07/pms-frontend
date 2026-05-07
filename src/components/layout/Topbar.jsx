@@ -19,7 +19,7 @@ export default function Topbar() {
   const { pathname } = useLocation()
   const [searchOpen, setSearchOpen] = useState(false)
 
-  const title = pageTitles[pathname] || 'ProjectNest'
+  const title = pageTitles[pathname] || 'Nexus'
 
   const initials = user?.name
     ?.split(' ')
