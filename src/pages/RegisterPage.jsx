@@ -49,16 +49,16 @@ export default function RegisterPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-20">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-              <span className="text-blue-600 text-sm font-bold">PN</span>
+              <span className="text-blue-600 text-sm font-bold">NX</span>
             </div>
-            <span className="text-white text-lg font-semibold">ProjectNest</span>
+            <span className="text-white text-lg font-semibold">Nexus</span>
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
             Start building<br />something<br />amazing.
           </h1>
           <p className="text-blue-100 text-lg max-w-md leading-relaxed">
-            Join thousands of teams who use ProjectNest to ship products faster.
+            Join thousands of teams who use Nexus to ship products faster.
           </p>
         </div>
 
@@ -82,16 +82,16 @@ export default function RegisterPage() {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-              <span className="text-white text-sm font-bold">PN</span>
+              <span className="text-white text-sm font-bold">NX</span>
             </div>
-            <span className="text-gray-900 text-lg font-semibold">ProjectNest</span>
+            <span className="text-gray-900 text-lg font-semibold">Nexus</span>
           </div>
 
           {/* Header */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
             <p className="text-gray-500 text-sm mt-2">
-              Start managing projects with ProjectNest
+              Start managing projects with Nexus
             </p>
           </div>
 
